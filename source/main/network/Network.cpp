@@ -35,6 +35,8 @@
 
 #include <Ogre.h>
 
+#include "zlib.h"
+
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -220,9 +222,19 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 			}
 			hlen += recvnum;
 		}
-	}
 
-	memcpy(content, buffer + sizeof(header_t), bufferlen);
+		memcpy(content, buffer + sizeof(header_t), bufferlen);
+
+		if (head->command == MSG2_STREAM_DATA)
+		{
+			// Uncompress stream data
+			uLongf destLen = MAX_MESSAGE_LENGTH;
+			Bytef dest[MAX_MESSAGE_LENGTH];
+			uncompress(dest, &destLen, (Bytef*)content, (uLong)head->size);
+			memcpy(content, dest, destLen);
+			head->size = (unsigned int)destLen;
+		}
+	}
 
 	return 0;
 }
@@ -554,6 +566,17 @@ void AddPacket(int streamid, int type, int len, char *content)
 	head->source   = m_uid;
 	head->size     = len;
 	head->streamid = streamid;
+
+	if (len > 0 && type == MSG2_STREAM_DATA)
+	{
+		// Compress stream data
+		uLongf destLen = MAX_MESSAGE_LENGTH;
+		Bytef dest[MAX_MESSAGE_LENGTH];
+		compress2(dest, &destLen, (Bytef*)content, (uLong)len, Z_BEST_COMPRESSION);
+		memcpy(content, dest, destLen);
+		len = destLen;
+		head->size = len;
+	}
 
 	// then copy the contents
 	char *bufferContent = (char *)(buffer + sizeof(header_t));
