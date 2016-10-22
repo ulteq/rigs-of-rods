@@ -247,7 +247,9 @@ void SequentialImporter::ResolveFlexbodyForset(std::vector<Node::Range>& in_rang
             }
             else
             {
-                Node::Ref node_ref = this->ResolveNodeByIndex(range.start.Num(), range.start.GetLineNumber()); // Forset nodes are numbered-only
+                NodeMapEntry node_entry = m_all_nodes[range.start.Num()];
+                unsigned index_out = node_entry.node_sub_index;
+                Node::Ref node_ref = Node::Ref(TOSTRING(index_out), index_out, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, range.start.GetLineNumber());
                 // Invalid nodes are simply thrown away, for backwards compatibility 
                 // (FlexBody loops through existing nodes first, and then evaluates if they are in the SET)
                 if (node_ref.IsValidAnyState())
@@ -278,11 +280,12 @@ void SequentialImporter::ResolveFlexbodyForset(std::vector<Node::Range>& in_rang
             }
             else
             {
-                unsigned int end_index = range.end.Num();
                 unsigned int line_num = range.start.GetLineNumber();
-                for (unsigned int i = range.start.Num(); i <= end_index; ++i)
+                for (unsigned int i = range.start.Num(); i <= range.end.Num(); ++i)
                 {
-                    Node::Ref node_ref = this->ResolveNodeByIndex(i, line_num); // Forset nodes are numbered-only
+                    NodeMapEntry node_entry = m_all_nodes[i];
+                    unsigned int index_out = node_entry.node_sub_index;
+                    Node::Ref node_ref = Node::Ref(TOSTRING(index_out), index_out, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, line_num);
                     // Invalid nodes are simply thrown away, for backwards compatibility 
                     // (FlexBody loops through existing nodes first, and then evaluates if they are in the SET -> invalid nodes are silently ignored)
                     if (node_ref.IsValidAnyState())
