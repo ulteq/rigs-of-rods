@@ -735,8 +735,8 @@ void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
 
 void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 {
-    //parse fusedrag
     int front_node_idx = GetNodeIndexOrThrow(def.front_node);
+    int  rear_node_idx = GetNodeIndexOrThrow(def.rear_node);
     float width = 1.f;
     float factor = 1.f;
     char fusefoil[256];
@@ -753,7 +753,7 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
         m_actor->m_fusealge_front   = & GetNode(front_node_idx);
-        m_actor->m_fusealge_back    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_back    = & GetNode( rear_node_idx); // The old parser was using the front node twice
         m_actor->m_fusealge_width   = width;
         AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
     } 
@@ -766,7 +766,7 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
         m_actor->m_fusealge_front   = & GetNode(front_node_idx);
-        m_actor->m_fusealge_back    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_back    = & GetNode( rear_node_idx); // The old parser was using the front node twice
         m_actor->m_fusealge_width   = width;
     }
 }
