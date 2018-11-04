@@ -365,6 +365,13 @@ FlexBody::FlexBody(
             cursubmesh++;
         }
 
+        LOG("Locating nodes: " + TOSTRING(node_indices.size()));
+        for (auto node_index : node_indices)
+        {
+            LOG(TOSTRING(node_index));
+        }
+        LOG("-----------------------------");
+
         //transform
         for (int i=0; i<(int)m_vertex_count; i++)
         {
