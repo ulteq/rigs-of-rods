@@ -242,17 +242,17 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
 
 Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z)
 {
-    Real h11 = (getHeightAt(x - 0.1f, z - 0.1f) - y) / 8.0f;
-    Real h12 = (getHeightAt(x - 0.1f, z + 0.0f) - y) / 8.0f;
-    Real h13 = (getHeightAt(x - 0.1f, z + 0.1f) - y) / 8.0f;
-    Real h21 = (getHeightAt(x - 0.0f, z - 0.1f) - y) / 8.0f;
-    Real h23 = (getHeightAt(x + 0.0f, z + 0.1f) - y) / 8.0f;
-    Real h31 = (getHeightAt(x + 0.1f, z - 0.1f) - y) / 8.0f;
-    Real h32 = (getHeightAt(x + 0.1f, z + 0.0f) - y) / 8.0f;
-    Real h33 = (getHeightAt(x + 0.1f, z + 0.1f) - y) / 8.0f;
+    Real h11 = (getHeightAt(x - 0.1f, z - 0.1f) - y) / 32.0f;
+    Real h12 = (getHeightAt(x - 0.1f, z + 0.0f) - y) / 32.0f;
+    Real h13 = (getHeightAt(x - 0.1f, z + 0.1f) - y) / 32.0f;
+    Real h21 = (getHeightAt(x - 0.0f, z - 0.1f) - y) / 32.0f;
+    Real h23 = (getHeightAt(x + 0.0f, z + 0.1f) - y) / 32.0f;
+    Real h31 = (getHeightAt(x + 0.1f, z - 0.1f) - y) / 32.0f;
+    Real h32 = (getHeightAt(x + 0.1f, z + 0.0f) - y) / 32.0f;
+    Real h33 = (getHeightAt(x + 0.1f, z + 0.1f) - y) / 32.0f;
 
-    Real gx = h11 + 2.0f * h12 + h13 - h31 - 2.0f * h32 - h33;
-    Real gy = h11 + 2.0f * h21 + h31 - h13 - 2.0f * h23 - h33;
+    Real gx = 3.0f * h11 + 10.0f * h12 + 3.0f * h13 - 3.0f * h31 - 10.0f * h32 - 3.0f * h33;
+    Real gy = 3.0f * h11 + 10.0f * h21 + 3.0f * h31 - 3.0f * h13 - 10.0f * h23 - 3.0f * h33;
 
     Vector3 normal(gx, 0.1f, gy);
     normal.normalise();
