@@ -193,7 +193,8 @@ private:
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
-    void detectDuplicates();                   // tries to detect duplicates
+    void removeDeletedEntries();               // removes 'deleted' entries from the cache
+    void checkForDuplicates();                 // tries to detect duplicates in the cache
 
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
     void deleteFileCache(const char *full_path); //!< Delete single file from cache

@@ -131,10 +131,10 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
         this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files in 'HOME/vehicles' dir
 
-        this->detectDuplicates();
+        this->checkForDuplicates();
+        this->removeDeletedEntries();
 
         this->WriteCacheFileJson();
-        this->LoadCacheFileJson(); // Reloading from the disk removes all the 'deleted' cache entries
     }
     else if (validity == CACHE_NEEDS_UPDATE_INCREMENTAL)
     {
@@ -143,7 +143,6 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
         this->incrementalCacheUpdate();
 
         this->WriteCacheFileJson();
-        this->LoadCacheFileJson(); // Reloading from the disk removes all the 'deleted' cache entries
     }
     else
     {
@@ -459,14 +458,17 @@ void CacheSystem::incrementalCacheUpdate()
 
     LOG("* incremental check (5/5): duplicates ...");
     loading_win->setProgress(90, _L("incremental check: duplicates\n"));
-    detectDuplicates();
+    checkForDuplicates();
+
+    removeDeletedEntries();
+
     loading_win->setAutotrack(_L("loading...\n"));
 
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
     LOG("* incremental check done.");
 }
 
-void CacheSystem::detectDuplicates()
+void CacheSystem::checkForDuplicates()
 {
     std::map<String, String> possible_duplicates;
     for (int i=0; i<m_entries.size(); i++) 
@@ -529,6 +531,18 @@ void CacheSystem::detectDuplicates()
         LOG("  - " + duplicate.first);
         LOG("  - " + duplicate.second);
     }
+}
+
+void CacheSystem::removeDeletedEntries()
+{
+    std::vector<CacheEntry> entries;
+    entries.reserve(m_entries.size());
+    for (auto entry : m_entries)
+    {
+        if (!entry.deleted)
+            entries.push_back(entry);
+    }
+    m_entries = entries;
 }
 
 CacheEntry* CacheSystem::getEntry(int modid)
@@ -639,10 +653,7 @@ void CacheSystem::WriteCacheFileJson()
     rapidjson::Value j_entries(rapidjson::kArrayType);
     for (CacheEntry const& entry : m_entries)
     {
-        if (!entry.deleted)
-        {
-            this->ExportEntryToJson(j_entries, j_doc, entry);
-        }
+        this->ExportEntryToJson(j_entries, j_doc, entry);
     }
     j_doc.AddMember("entries", j_entries, j_doc.GetAllocator());
 
