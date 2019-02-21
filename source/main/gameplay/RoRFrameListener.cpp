@@ -1717,6 +1717,25 @@ void SimController::UpdateSimulation(float dt)
         m_actor_manager.LoadScene(App::sim_savegame.GetActive());
     }
 
+    static auto entries = App::GetCacheSystem()->GetEntries();
+    static int index = 0;
+    if (index < entries.size())
+    {
+        for (auto actor : GetActors())
+        {
+            this->RemoveActorDirectly(actor);
+            App::GetCacheSystem()->UnloadActorFromMemory(actor->ar_filename);
+        }
+        if (entries[index].fext != "terrn2")
+        {
+            ActorSpawnRequest rq;
+            rq.asr_cache_entry = &entries[index];
+            rq.asr_origin      = ActorSpawnRequest::Origin::TERRN_DEF;
+            SpawnActorDirectly(rq);
+        }
+        index++;
+    }
+
     if (m_pending_player_actor != m_player_actor)
     {
         m_prev_player_actor = m_player_actor ? m_player_actor : m_prev_player_actor;
